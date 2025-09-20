@@ -14,6 +14,8 @@
     DIG_IO_ENTRY(out1,        GPIOA, GPIO2, PinMode::OUTPUT)      \
     DIG_IO_ENTRY(out2,        GPIOA, GPIO3, PinMode::OUTPUT)      \
     DIG_IO_ENTRY(BatCS,       GPIOA, GPIO4, PinMode::OUTPUT)      \
+	DIG_IO_ENTRY(PWM1,        GPIOB, GPIO0, PinMode::OUTPUT)      \
+	DIG_IO_ENTRY(PWM2,        GPIOB, GPIO1,  PinMode::OUTPUT)      \
     DIG_IO_ENTRY(in1,         GPIOB, GPIO3, PinMode::INPUT_FLT)      \
     DIG_IO_ENTRY(in2,         GPIOB, GPIO4, PinMode::INPUT_FLT)      \
 

@@ -32,7 +32,7 @@ float asDiff = 0;//Ampsecond change since last SOC update
 
 void BMSUtil::UpdateSOC()
 {
-    TempSOC = Param::GetInt(Param::soc);
+    TempSOC = Param::GetInt(Param::SOC);
 
     if(ABS(Param::GetFloat(Param::idc)) < NoCurLim)
     {
@@ -49,10 +49,10 @@ void BMSUtil::UpdateSOC()
     }
     else
     {
-        TempSOC = TempSOC + (100 * asDiff / (3600 * Param::GetInt(Param::nomcap)));
+        TempSOC = TempSOC + (100 * asDiff / (3600 * Param::GetInt(Param::BattCap)));
     }
 
-    Param::SetInt(Param::soc,TempSOC);
+    Param::SetInt(Param::SOC,TempSOC);
 }
 
 int BMSUtil::EstimateSocFromVoltage()

@@ -34,6 +34,8 @@
 #include "hwinit.h"
 #include "stm32_loader.h"
 #include "my_string.h"
+#include "digio.h"
+#include "params.h"
 
 /**
 * Start clocks of all needed peripherals
@@ -53,6 +55,7 @@ void clock_setup(void)
    rcc_periph_clock_enable(RCC_USART3);
    rcc_periph_clock_enable(RCC_USART1);//Model S slaves
    rcc_periph_clock_enable(RCC_TIM2); //Scheduler
+   rcc_periph_clock_enable(RCC_TIM3); //PWM outputs
    rcc_periph_clock_enable(RCC_DMA1);  //ADC, Encoder and UART receive
    rcc_periph_clock_enable(RCC_ADC1);
    rcc_periph_clock_enable(RCC_CRC);
@@ -84,7 +87,8 @@ void write_bootloader_pininit()
    commands.pindef[0].inout = PIN_OUT;
    commands.pindef[0].level = 1;
    commands.pindef[1].port = GPIOB;
-   commands.pindef[1].pin = GPIO1 | GPIO2;
+   //commands.pindef[1].pin = GPIO1 | GPIO2;
+   commands.pindef[1].pin = GPIO2;
    commands.pindef[1].inout = PIN_OUT;
    commands.pindef[1].level = 0;
 
@@ -126,16 +130,22 @@ void rtc_setup()
 
 void spi1_setup()   //spi 1 used for BATMAN!
 {
-
-   spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                   SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_DFF_16BIT, SPI_CR1_MSBFIRST);
-   spi_set_standard_mode(SPI1,3);//set mode 3
-
-   spi_enable_software_slave_management(SPI1);
-   //spi_enable_ss_output(SPI1);
-   spi_set_nss_high(SPI1);
+   uint8_t BMStype = Param::GetInt(Param::bmstype); //pull BMS type
    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7 | GPIO5);//MOSI , CLK
    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO6);//MISO
+   spi_reset(SPI1);
+   if(BMStype == BMS_M3)
+    {
+	   spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE, SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_DFF_16BIT, SPI_CR1_MSBFIRST);																				
+	   spi_set_standard_mode(SPI1,3);//set mode 3
+	}
+   else if(BMStype == BMS_MAX)
+    {
+		spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_32, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE, SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_DFF_16BIT, SPI_CR1_MSBFIRST);																				
+	    spi_set_standard_mode(SPI1,0);//set mode 0
+	}
+   spi_enable_software_slave_management(SPI1);
+   spi_set_nss_high(SPI1);
    spi_enable(SPI1);
 }
 
@@ -149,13 +159,35 @@ void usart1_setup(void)
 	usart_set_parity(USART1, USART_PARITY_NONE);
 	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 	usart_enable(USART1);
-
 }
 
 void tim_setup()
 {
 
 }
+void tim3_setup()
+{
+	  gpio_set_mode(GPIOB,GPIO_MODE_OUTPUT_2_MHZ,GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,GPIO1);
+	  gpio_set_mode(GPIOB,GPIO_MODE_OUTPUT_2_MHZ,GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,GPIO0);
 
-
-
+   timer_disable_counter(TIM3);
+   //edge aligned PWM
+   
+   timer_set_alignment(TIM3, TIM_CR1_CMS_EDGE);
+   timer_enable_preload(TIM3);
+   /* PWM mode 1 and preload enable */
+   timer_set_oc_mode(TIM3, TIM_OC3, TIM_OCM_PWM1);
+   timer_set_oc_mode(TIM3, TIM_OC4, TIM_OCM_PWM1);
+   timer_enable_oc_preload(TIM3, TIM_OC3);
+   timer_enable_oc_preload(TIM3, TIM_OC4);
+   timer_set_oc_polarity_high(TIM3, TIM_OC3);
+   timer_set_oc_polarity_high(TIM3, TIM_OC4);
+   timer_enable_oc_output(TIM3, TIM_OC3);
+   timer_enable_oc_output(TIM3, TIM_OC4);
+   timer_set_period(TIM3, Param::GetInt(Param::Tim_Period));
+   timer_set_oc_value(TIM3, TIM_OC3, Param::GetInt(Param::Tim_1_OC));
+   timer_set_oc_value(TIM3, TIM_OC4, Param::GetInt(Param::Tim_2_OC));
+   timer_generate_event(TIM3, TIM_EGR_UG);
+   timer_set_prescaler(TIM3,Param::GetInt(Param::Tim_Presc));
+   timer_enable_counter(TIM3);
+}

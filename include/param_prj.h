@@ -39,36 +39,53 @@
  */
 
 //Define a version string of your firmware here
-#define VER 0.03.A
+#define VER 0.05.AK
 
 /* Entries must be ordered as follows:
    1. Saveable parameters (id != 0)
    2. Temporary parameters (id = 0)
    3. Display values
  */
-//Next param id (increase when adding new parameter!): 8
-//Next value Id: 2126
+//Next param id (increase when adding new parameter!): 15
+//Next value Id: 2182
 /*              category     name         unit       min     max     default id */
 #define PARAM_LIST \
-    PARAM_ENTRY(CAT_BMS,     type,        TYPES,     0,      1,      0,      1   ) \
+    PARAM_ENTRY(CAT_BMS,     bmstype,        TYPES,     0,      2,      0,      1   ) \
     PARAM_ENTRY(CAT_BMS,     numbmbs,     "",        1,      4,      1,      2   ) \
     PARAM_ENTRY(CAT_BMS,     balance,     OFFON,     0,      1,      0,      3   ) \
-    PARAM_ENTRY(CAT_BMS,     nomcap,      "Ah",      0,      1000,   100,    4   ) \
+    PARAM_ENTRY(CAT_BMS,     BattCap,     "kWh",     0.1,    250,    22,     4   ) \
     PARAM_ENTRY(CAT_BMS,    CellVmax,     "mV",      3000, 4200,   4150,      5   ) \
     PARAM_ENTRY(CAT_BMS,    CellVmin,     "mV",      2800, 3500,   3200,      6   ) \
-    PARAM_ENTRY(CAT_SENS,    idcgain,     "dig/A",   -1000,  1000,   10,     7  ) \
-    PARAM_ENTRY(CAT_SENS,    idcofs,      "dig",    -4095,   4095,   0,      8   ) \
-    PARAM_ENTRY(CAT_SENS,    idcmode,     IDCMODES,  0,      3,      0,      9  ) \
+	PARAM_ENTRY(CAT_COMM,     CanCtrl,      OFFON,     0,      1,      0,   	  7) \
+	PARAM_ENTRY(CAT_COMM,     NodeId,    	  "",     	 1,      63,     5,       8) \
+	PARAM_ENTRY(CAT_SENS,    ShuntType,   SHNTYPE,   0,      1,      0,      9 ) \
+    PARAM_ENTRY(CAT_SENS,    IsaInit,     OFFON,     0,      1,      0,      10 ) \
+	PARAM_ENTRY(CAT_PWM,       Tim_Presc,  "",        1,      72000,  32,    11 ) \
+    PARAM_ENTRY(CAT_PWM,       Tim_Period, "",        1,      100000, 2180,   12 ) \
+    PARAM_ENTRY(CAT_PWM,       Tim_1_OC,   "",        1,      100000, 1100,   13 ) \
+    PARAM_ENTRY(CAT_PWM,       Tim_2_OC,   "",        1,      100000, 1100,   14 ) \
     VALUE_ENTRY(opmode,      OPMODES,2000 ) \
     VALUE_ENTRY(version,     VERSTR, 2001 ) \
-    VALUE_ENTRY(soc,         "%",   2002 ) \
+	VALUE_ENTRY(IN1,   		 OFFON,  2169 ) \
+    VALUE_ENTRY(IN2,   		 OFFON,  2170 ) \
+	VALUE_ENTRY(uaux,        "V",    2171 ) \
+	VALUE_ENTRY(CoolantPUMP, OFFON,  2172 ) \
+	VALUE_ENTRY(CoolantFAN,  OFFON,  2173 ) \
+    VALUE_ENTRY(SOC,         "%",    2002 ) \
     VALUE_ENTRY(chargelim,   "A",    2003 ) \
     VALUE_ENTRY(dischargelim,"A",    2004 ) \
     VALUE_ENTRY(chargeVlim,  "V",    2157 ) \
     VALUE_ENTRY(dischargeVlim,"V",   2158 ) \
     VALUE_ENTRY(deltaV,      "mV",   2005 ) \
     VALUE_ENTRY(udc,         "V",    2006 ) \
-    VALUE_ENTRY(idc,         "A",    2007 ) \
+	VALUE_ENTRY(idc,         "A",    2174 ) \
+	VALUE_ENTRY(power,       "kW",   2175 ) \
+	VALUE_ENTRY(udc1,        "V",    2176 ) \
+    VALUE_ENTRY(udc2,        "V",    2177 ) \
+    VALUE_ENTRY(udc3,        "V",    2178 ) \
+	VALUE_ENTRY(KWh,         "kwh",  2179 ) \
+    VALUE_ENTRY(AMPh,        "Ah",   2180 ) \
+	VALUE_ENTRY(tmpaux,      "°C",   2181 ) \
     VALUE_ENTRY(TempMax,     "°C",   2008 ) \
     VALUE_ENTRY(TempMin,     "°C",   2156 ) \
     VALUE_ENTRY(uavg,        "mV",   2009 ) \
@@ -212,21 +229,30 @@
     VALUE_ENTRY(ChipV7,       "V",   2136 ) \
     VALUE_ENTRY(ChipV8,       "V",   2137 ) \
     VALUE_ENTRY(CellsPresent,  "",   2128 ) \
-    VALUE_ENTRY(CellsBalancing,  "",   2160 ) \
+    VALUE_ENTRY(Chip1Cells,    "",   2161 ) \
+    VALUE_ENTRY(Chip2Cells,    "",   2162 ) \
+    VALUE_ENTRY(Chip3Cells,    "",   2163 ) \
+    VALUE_ENTRY(Chip4Cells,    "",   2164 ) \
+    VALUE_ENTRY(Chip5Cells,    "",   2165 ) \
+    VALUE_ENTRY(Chip6Cells,    "",   2166 ) \
+    VALUE_ENTRY(Chip7Cells,    "",   2167 ) \
+    VALUE_ENTRY(Chip8Cells,    "",   2168 ) \
+    VALUE_ENTRY(CellsBalancing,"",   2160 ) \
     VALUE_ENTRY(LoopCnt,      "",    2127 ) \
     VALUE_ENTRY(LoopState,    "",    2131 ) \
     VALUE_ENTRY(cpuload,     "%",    2122 )
 
 
 /***** Enum String definitions *****/
-#define OPMODES      "0=Off, 1=Run, 2=RunBalance"
+#define OPMODES      "0=Off, 1=Run, 2=RunBalance, 3=Charge, 4=ChargeBalance"
+#define SHNTYPE      "0=None, 1=ISA"
 #define OFFON        "0=Off, 1=On"
 #define BAL          "0=None, 1=Discharge"
-#define IDCMODES     "0=Off, 1=AdcSingle, 2=IsaCan"
-#define TYPES        "0=Model_3, 1=Model_S"
+#define TYPES        "0=Model_3, 1=Model_S, 2=MAX"
 #define CAT_BMS      "BMS"
 #define CAT_SENS     "Sensor setup"
 #define CAT_COMM     "Communication"
+#define CAT_PWM      "PWM Control"
 
 #define VERSTR STRINGIFY(4=VER)
 
@@ -242,7 +268,15 @@ enum _modes
 {
     MOD_OFF = 0,
     MOD_RUN,
+	MOD_CHARGE,
     MOD_LAST
+};
+
+enum _types
+{
+    BMS_M3 = 0,
+    BMS_TESLAS = 1,
+    BMS_MAX = 2
 };
 
 //Generated enum-string for possible errors
