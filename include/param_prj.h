@@ -50,7 +50,9 @@
 //Next value Id: 2182
 /*              category     name         unit       min     max     default id */
 #define PARAM_LIST \
-    PARAM_ENTRY(CAT_BMS,     bmstype,        TYPES,     0,      2,      0,      1   ) \
+    PARAM_ENTRY(CAT_BMS,     COOL,        OFFON,     0,      1,      0,      15   ) \
+	PARAM_ENTRY(CAT_BMS,     COOL_Temp,   "",     	 20,     50,      30,    16   ) \
+	PARAM_ENTRY(CAT_BMS,     bmstype,        TYPES,     0,      2,      0,      1   ) \
     PARAM_ENTRY(CAT_BMS,     numbmbs,     "",        1,      4,      1,      2   ) \
     PARAM_ENTRY(CAT_BMS,     balance,     OFFON,     0,      1,      0,      3   ) \
     PARAM_ENTRY(CAT_BMS,     BattCap,     "kWh",     0.1,    250,    22,     4   ) \
@@ -76,7 +78,7 @@
     VALUE_ENTRY(dischargelim,"A",    2004 ) \
     VALUE_ENTRY(chargeVlim,  "V",    2157 ) \
     VALUE_ENTRY(dischargeVlim,"V",   2158 ) \
-    VALUE_ENTRY(deltaV,      "mV",   2005 ) \
+    VALUE_ENTRY(deltamV,      "mV",   2005 ) \
     VALUE_ENTRY(udc,         "V",    2006 ) \
 	VALUE_ENTRY(idc,         "A",    2174 ) \
 	VALUE_ENTRY(power,       "kW",   2175 ) \

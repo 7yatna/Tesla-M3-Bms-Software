@@ -52,7 +52,7 @@ void BMSUtil::UpdateSOC()
         TempSOC = TempSOC + (100 * asDiff / (3600 * Param::GetInt(Param::BattCap)));
     }
 
-    Param::SetInt(Param::SOC,TempSOC);
+    //Param::SetInt(Param::SOC,TempSOC);
 }
 
 int BMSUtil::EstimateSocFromVoltage()

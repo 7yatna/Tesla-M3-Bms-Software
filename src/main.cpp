@@ -125,7 +125,7 @@ static void Ms100Task(void)
     iwdg_reset();
 	Param::SetInt(Param::IN1, DigIo::in1.Get());
 	Param::SetInt(Param::IN2, DigIo::in2.Get());
-	if(DigIo::in1.Get() || (Param::GetInt(Param::opmode) == 1)) 
+	if(DigIo::in1.Get() || (Param::GetInt(Param::COOL) || (Param::GetInt(Param::opmode) == 1))) 
 	{
 		DigIo::out1.Set(); 
 		Param::SetInt(Param::CoolantPUMP, 1);
@@ -135,7 +135,7 @@ static void Ms100Task(void)
 		DigIo::out1.Clear();
 		Param::SetInt(Param::CoolantPUMP, 0);
 	}
-	if((Param::GetInt(Param::opmode) == 1) && (DigIo::in2.Get() || (Param::GetInt(Param::TempMax) >= 35))) 
+	if(((Param::GetInt(Param::opmode) == 1) || (Param::GetInt(Param::COOL))) && (DigIo::in2.Get() || (Param::GetInt(Param::Cellt0_0) >= (Param::GetInt(Param::COOL_Temp))))) 
 	{
 		DigIo::out2.Set();
 		Param::SetInt(Param::CoolantFAN, 1);
@@ -149,12 +149,9 @@ static void Ms100Task(void)
     float cpuLoad = scheduler->GetCpuLoad();
     Param::SetFloat(Param::cpuload, cpuLoad / 10);
     Param::SetInt(Param::tmpaux,((float)Temperature));
-	/*
-	if(Param::GetInt(Param::ShuntType) != 0)//Do not do any SOC calcs
-    {
-        CalcSOC();
-    }
-	*/
+	CalcSOC();
+   
+	
 //!!! to change to BMS class with selectable types under it to clean up code and simplify interactions//
     if(BMStype == BMS_M3)
     {
